@@ -755,7 +755,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('exportDegreesWithPrestations', 'EcoComRentController@exportDegreesWithPrestations');
     Route::resource('ecocomrents', 'EcoComRentController');
 
-
     // observations
     Route::get('eco_com_get_observations/{eco_com_id}', 'EcoComObservationController@getObservations');
     Route::get('eco_com_get_delete_observations/{eco_com_id}', 'EcoComObservationController@getDeleteObservations');

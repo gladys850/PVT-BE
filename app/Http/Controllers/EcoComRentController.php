@@ -16,15 +16,6 @@ class EcoComRentController extends Controller
     /**
      * Listar todos los registros.
      */
-    // public function index()
-    // {
-    //     $rents = EcoComRent::with(['user', 'degree', 'procedureModality'])
-    //         ->orderBy('year', 'desc')
-    //         ->orderBy('semester', 'asc')
-    //         ->get();
-
-    //     return response()->json($rents);
-    // }
     public function index(Request $request)
     {
         $year = $request->year;
