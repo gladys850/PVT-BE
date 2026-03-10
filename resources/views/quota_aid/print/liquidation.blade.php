@@ -85,7 +85,7 @@
                     </thead>
                     <tbody class="table-striped">
                         <tr class="text-xs">
-                            <td class="w-40 text-center font-bold px-10 py-3">NOMBRE DEL DERECHOHABIENTE Y BENEFICIARIO</td>
+                            <td class="w-40 text-center font-bold px-10 py-3">NOMBRE DEL DERECHOHABIENTE / BENEFICIARIO</td>
                             <td class="w-16 text-center font-bold px-10 py-3">C.I.</td>
                             <td class="w-20 text-center font-bold px-10 py-3">% DE ASIGNACIÓN</td>
                             <td class="w-20 text-center font-bold px-10 py-3">MONTO</td>
@@ -139,7 +139,7 @@
                                     {!! Util::formatMoney($beneficiary->paid_amount) !!}
                                 </td>
                                 <td class="text-center uppercase px-5 py-3">{{ $beneficiary->kinship->name ?? '' }}</td>
-                                <td class="text-center uppercase px-5 py-3">{{$advisor ? $advisor->last_name : ''}}  {{$advisor ? $advisor->first_name : ''}}</td>
+                                <td class="text-center uppercase px-5 py-3">{{$advisor ? $advisor->fullName() : ''}}</td>
                                 <td class="text-center uppercase px-5 py-3">{{$advisor ? $advisor->identity_card : ''}}</td>
                                 <td class="text-center uppercase px-5 py-3">{{$advisorKinship ? $advisorKinship->name : ''}}</td>
                             </tr>

@@ -81,21 +81,8 @@ th.ellipsis-text {
                 </a>
             @endif
         @endcan
-        @can('create', new Muserpol\Models\Voucher)
-            @foreach ($voucher_types as $voucher_type)
-            <button class="btn btn-info btn-sm  dim" type="button" href="#tab-charge{{$voucher_type->id}}" data-toggle="tab" data-placement="top" title="{{ $voucher_type->name }}"><i class="fa fa-money"></i> {{ $voucher_type->name }}</button>
-            @endforeach            
-        @endcan
+        
 
-        {{-- @if('create', new Muserpol\Models\ChargeType) --}}
-        {{-- @can('view',new Muserpol\Models\Contribution\Contribution)
-        <a href="{{route('show_contribution', $affiliate->id)}}" >
-            <button class="btn btn-info btn-sm  dim" type="button" data-toggle="tooltip" data-placement="top" title="Ver Aportes"><i class="fa fa-dollar"> </i> APORTES ACTIVO </button>
-        </a>
-        <a href="{{route('show_aid_contribution', $affiliate->id)}}" >
-            <button class="btn btn-info btn-sm  dim" type="button" data-toggle="tooltip" data-placement="top" title="Aportes Auxilio Mortuorio"><i class="fa fa-dollar"> </i> APORTES PASIVO </button>
-        </a>
-        @endcan --}}
         <span data-toggle="modal" data-target="#ModalRecord">
             <button type="button" class="btn btn-info btn-sm dim" data-toggle="tooltip" data-placement="top" title="Historial del Afiliado">
                 <i class="fa fa-history" style="font-size:15px;"></i> HISTORIAL
@@ -230,10 +217,13 @@ th.ellipsis-text {
                     <div id="tab-eco-com" class="tab-pane">
                     
                         <!--Fixed-->
-                        @if($role == 5 || $role == 4 || $role == 103)
+                        @if(($role == 5 || $role == 4 || $role == 103) && isset($affiliate->pension_entity->id))
                         <div class="ibox">
                             <div class="ibox-title">
                                 <h2 class="pull-left">Renta/Pensión para la Calificación</h2>
+                                @if($role == 103 && count($eco_com_fixed_pensions ?? []) > 0)
+                                <button class="btn btn-warning btn-sm" @click="$refs.editModal.openModal()">Crear</button>
+                                @endif
                             </div>
                             <div class="ibox-content">
                                 <div class="table-responsive">
@@ -241,7 +231,7 @@ th.ellipsis-text {
                                         <thead>
                                             <tr class="success">
                                                 <th>Periódo vigente</th>
-                                                <th>Periodo renta/pensión</th>
+                                                <th>Periodo</th>
                                                 <th>Tipo de registro</th>
                                                 @if($affiliate->pension_entity->id != 5)
                                                     <th>Fracción de Saldo Acumulado</th>
@@ -255,6 +245,10 @@ th.ellipsis-text {
                                                     <th>Renta Dignidad</th>
                                                 @endif
                                                 <th>Total Renta</th>
+                                                <th>Modalidad</th>
+                                                <th>Promedio</th>
+                                                <th>Limite Referencial</th>
+                                                <th>Sueldo Base</th>
                                                 @if($role == 103)
                                                 <th>Acciones</th>
                                                 @endif
@@ -262,7 +256,7 @@ th.ellipsis-text {
                                         </thead>
                                         <tbody>
                                             @foreach ($eco_com_fixed_pensions as $eco_com_fixed_pension)
-                                                <tr>
+                                                <tr @if($loop->first) style="background-color: #CCE5FF;" @endif>
                                                     <td>{{ \Carbon\Carbon::parse($eco_com_fixed_pension->eco_com_regulation->start_production_date)->format('Y') }} - 
                                                         {{ \Carbon\Carbon::parse($eco_com_fixed_pension->eco_com_regulation->end_production_date)->format('Y') }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($eco_com_fixed_pension->eco_com_procedure->year)->format('Y') }} - {{ $eco_com_fixed_pension->eco_com_procedure->semester }}</td>
@@ -279,18 +273,29 @@ th.ellipsis-text {
                                                         <td>{{ $eco_com_fixed_pension->dignity_pension }}</td>
                                                     @endif
                                                     <td>{{ $eco_com_fixed_pension->total_rent }}</td>
+                                                    <td>{{ optional(optional($eco_com_fixed_pension->eco_com_rent)->procedureModality)->name }}</td>
+                                                    <td>{{ optional($eco_com_fixed_pension->eco_com_rent)->average }}</td>
+                                                    <td>{{ optional($eco_com_fixed_pension->eco_com_rent)->referential_limit }}</td>
+                                                    <td>{{ optional($eco_com_fixed_pension->base_wage)->amount}}</td>
                                                     @if($role == 103)
                                                     <td>
-                                                        <button class="btn btn-warning btn-sm" @click="$refs.editModal.openModal({{ json_encode($eco_com_fixed_pension) }})">Editar</button>
+                                                        <button class="btn btn-warning btn-sm" @click='$refs.editModal.openModal(@json($eco_com_fixed_pension))'>Editar</button>
                                                     </td>
                                                     @endif
                                                 </tr>
+                                                @if($loop->first)
+                                                <tr>
+                                                    <td colspan="100%" style="background-color:#CCE5FF; font-style:italic; text-align:center;">
+                                                        Renta que se usará en nuevos trámites
+                                                    </td>
+                                                </tr>
+                                                @endif
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <edit-pension-modal ref="editModal" :affiliate_pension_entity_id="{{$affiliate->pension_entity->id}}" ></edit-pension-modal>
+                            <edit-pension-modal ref="editModal" :affiliate_pension_entity_id="{{$affiliate->pension_entity->id}}" :affiliate_id="{{$affiliate->id}}"></edit-pension-modal>
                         </div>
                         @endif
                         <!---End fixed-->
@@ -321,7 +326,8 @@ th.ellipsis-text {
                                             <th>Ubicación</th>
                                             <th>Estado</th>
                                             <th>Complemento Economico</th>
-                                            <th>liquido Pagable</th>
+                                            <th>Liquido Pagable</th>
+                                            <th>Periodo Renta Fija</th>
                                             <th>Opciones</th>
                                             </tr>
                                         </thead>
@@ -337,6 +343,11 @@ th.ellipsis-text {
                                                 <td>{{$eco_com->eco_com_state->name }}</td>
                                                 <td style="text-align:right">{{Util::formatMoney($eco_com->getOnlyTotalEcoCom())}}</td>
                                                 <td style="text-align:right">{{Util::formatMoney($eco_com->total)}}</td>
+                                                <td>
+                                                @if (isset($eco_com->eco_com_fixed_pension))
+                                                    {{ \Carbon\Carbon::parse($eco_com->eco_com_fixed_pension->eco_com_procedure->year)->format('Y')}} - {{$eco_com->eco_com_fixed_pension->eco_com_procedure->semester}}
+                                                @endif
+                                                </td>
                                                 <td style="vertical-align:middle">
                                                 @can('update', new Muserpol\Models\EconomicComplement\EconomicComplement)
                                                     <a href="/eco_com/{{$eco_com->id}}">
@@ -347,7 +358,7 @@ th.ellipsis-text {
                                                 </tr>
                                                 @if ($eco_com->discount_types->count() > 0)
                                                     <tr class="danger">
-                                                        <td colspan="2" rowspan="{{ $eco_com->discount_types->count() + 1  }}" >
+                                                        <td colspan="3" rowspan="{{ $eco_com->discount_types->count() + 1  }}" >
                                                         </td>
                                                         <td colspan="2" rowspan="{{ $eco_com->discount_types->count() + 1  }}" style="vertical-align:middle">
                                                             <strong>
@@ -371,11 +382,13 @@ th.ellipsis-text {
                     </div>
                     <div id="tab-quota-aid-mortuory" class="tab-pane">
 
-                        @if($quota_aid)
-                        <quota-aid-info :quota_aid="{{ $quota_aid }}" :rf_city_start="{{$quota_aid->city_start}}" :rf_city_end="{{$quota_aid->city_end}}"
-                            :rf_procedure_modality=" {{$quota_aid->procedure_modality}}" :states="{{ $states }}" :read="true" inline-template>
-                            @include('quota_aid.info', ['quota_aid'=>$quota_aid,'cities'=>$birth_cities])
-                        </quota-aid-info>
+                        @if($quota_aids->count() > 0)
+                            @foreach ($quota_aids as $quota_aid)
+                                <quota-aid-info :quota_aid="{{ $quota_aid }}" :rf_city_start="{{$quota_aid->city_start}}" :rf_city_end="{{$quota_aid->city_end}}"
+                                    :rf_procedure_modality=" {{$quota_aid->procedure_modality}}" :states="{{ $states }}" :read="true" inline-template>
+                                    @include('quota_aid.info', ['quota_aid'=>$quota_aid,'cities'=>$birth_cities])
+                                </quota-aid-info>
+                            @endforeach
                         @else
                         <div class="alert alert-warning">NO SE TIENE REGISTROS DE CUOTA Y AUXILIO MORTUORIO</div>
                         @endif
@@ -393,38 +406,6 @@ th.ellipsis-text {
                         {{-- @endcan --}}
                     </div>
                     @endif
-                    {{-- <div id="tab-aid-mortuory" class="tab-pane"> //auxilio mortuorio
-
-
-
-                    </div> --}}
-                    @can('create', new Muserpol\Models\Voucher)
-                        @foreach ($voucher_types as $voucher_type)
-                            <div id="tab-charge{{$voucher_type->id}}" class="tab-pane">
-                                <generate-charge
-                                    :payment_types = "{{ $payment_types }}"
-                                    :affiliate_id = "{{ $affiliate->id }}"
-                                    :vouchers = "{{ $vouchers }}"
-                                    :voucher_type = "{{ $voucher_type  }}"
-                                ></generate-charge>
-                            </div>
-                        @endforeach                        
-                    @endcan
-                    {{-- <div class="row">
-                        <div class="col-lg-12">
-                            <div class="ibox">
-                                <div class="ibox-title">                    
-                                        <direct-contribution-payment
-                                            :contribution_process="{{ $contribution_process }}"
-                                            :voucher = "{{ $voucher }}"
-                                            :payment_types = "{{ $payment_types }}"             
-                                        ></direct-contribution-payment>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-                    
-
                     <div id="tab-observations" class="tab-pane">
                         <affiliate-observations :affiliate="{{ $affiliate }}" :permissions="{{ $permissions }}" :observation-types="{{ $observation_types }}"></affiliate-observations>
                     </div>

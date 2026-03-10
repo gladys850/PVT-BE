@@ -283,7 +283,7 @@ class AffiliateController extends Controller
         $affiliate->phone_number = explode(',', $affiliate->phone_number);
         $affiliate->cell_phone_number = explode(',', $affiliate->cell_phone_number);
 
-        $spouse = $affiliate->spouse->first();
+        $spouse = $affiliate->spouse()->latest('updated_at')->first();
         if (!$spouse) {
             $spouse = new Spouse();
         }else{
@@ -352,19 +352,9 @@ class AffiliateController extends Controller
         {
             $is_editable = "0";
         } */
-        $quota_aid = $affiliate->quota_aid_mortuaries->last();
+        $quota_aids = $affiliate->quota_aid_mortuaries()->with('workflow:id,name')->get();
         $pension_entities = PensionEntity::all()->pluck('name', 'id');
                 
-        $payment_types = PaymentType::get();
-        $voucher_types = VoucherType::get();
-        $voucher_type_ids = $voucher_types->pluck('id');
-        
-        //TODO modificar el listado voucher
-        //$vouchers = Voucher::where('affiliate_id',$affiliate->id)->whereIn('voucher_type_id',$voucher_type_ids)->with(['type'])->get();   
-        $vouchers = Voucher::whereIn('voucher_type_id',$voucher_type_ids)->with(['type'])->get();        
-        //return $vouchers;
-
-
         /**
          ** for observations
          */
@@ -378,7 +368,7 @@ class AffiliateController extends Controller
         /**
          ** eco coms
          */
-        $eco_coms = $affiliate->economic_complements()->orderBy(DB::raw("regexp_replace(split_part(code, '/',3),'\D','','g')::integer"))->orderBy(DB::raw("split_part(code, '/',2)"))->orderBy(DB::raw("split_part(code, '/',1)::integer"))->get()->reverse();
+        $eco_coms = $affiliate->economic_complements()->with('eco_com_fixed_pension')->orderBy(DB::raw("regexp_replace(split_part(code, '/',3),'\D','','g')::integer"))->orderBy(DB::raw("split_part(code, '/',2)"))->orderBy(DB::raw("split_part(code, '/',1)::integer"))->get()->reverse();
         $eco_com_procedures = EcoComProcedure::orderByDesc('year')->orderByDesc('semester')->get();
         foreach ($eco_com_procedures as $e) {
             $e->full_name = $e->fullName();
@@ -460,14 +450,9 @@ class AffiliateController extends Controller
          * Renta fija CE
          */
 
-        $eco_com_fixed_pensions = $affiliate->eco_com_fixed_pensions()->get();
-        foreach ($eco_com_fixed_pensions as $eco_com_fixed_pension){
-            $eco_com_fixed_pension->eco_com_regulation = $eco_com_fixed_pension->eco_com_regulation;
-            $eco_com_fixed_pension->eco_com_procedure = $eco_com_fixed_pension->eco_com_procedure;
-        }
-
+        $eco_com_fixed_pensions = $affiliate->eco_com_fixed_pensions()->with(['base_wage','eco_com_rent.procedureModality'])->orderBy('eco_com_procedure_id', 'desc')->get();
         $data = array(
-            'quota_aid'=>$quota_aid,
+            'quota_aids'=>$quota_aids,
             'retirement_funds'=>$retirement_funds,
             'affiliate'=>$affiliate,
             'spouse'=>$spouse,
@@ -500,9 +485,6 @@ class AffiliateController extends Controller
             'pension_entities' => $pension_entities,
             'has_direct_contribution' => isset($direct_contribution)?true:false,
             'direct_contribution'   =>  $direct_contribution,
-            'payment_types' =>  $payment_types,
-            'voucher_types' =>  $voucher_types,
-            'vouchers'  =>  $vouchers,
             'categories_1'  =>  Category::all(),
             //'records_message'=>$records_message
 

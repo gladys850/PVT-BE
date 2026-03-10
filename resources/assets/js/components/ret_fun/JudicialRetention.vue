@@ -2,7 +2,7 @@
    <div class="col-lg-12">
       <div class="ibox">
          <div class="ibox-title">
-            <h5>Retenciones judiciales</h5>
+            <h5>Retenciones del beneficio por Autoridad Judicial o Fiscal</h5>
             <div class="ibox-tools">
                <button class="btn btn-primary" 
                @click="register = !register"
@@ -110,6 +110,7 @@ export default {
                detail: this.detail
             })
             this.retentions.push(response.data.data);
+            this.obtainJudicialRetention();
             flash(response.data.message);
             //window.location.reload()
          } catch( error ) {
@@ -172,11 +173,13 @@ export default {
             preConfirm: async () => {
                await axios.delete(`/ret_fun/${this.ret_fun_id}/cancel_judicial_retention`)
                flash("Se ha eliminado la retención exitosamente");
-               this.retentions = this.retentions.filter(r => r.id !== this.editRetention.id);
+               //this.retentions = this.retentions.filter(r => r.id !== this.editRetention.id);
+               this.retentions = []
+               this.detail= null
+               this.register=false
                return true
             },
          });
-         window.location.reload();
       }
    }
 }
