@@ -250,7 +250,7 @@ let moneyInputMask = {
   groupSeparator: ",",
   autoGroup: true,
   digits: 2,
-  digitsOptional: false,
+  //digitsOptional: false,
   prefix: "Bs ",
   max:1000000000,
   min:0,
@@ -316,6 +316,8 @@ Vue.component('spouse-show', require('./components/spouse/ShowSpouse.vue'));
 //retirement Fund
 
 Vue.component('ret-fun-index', require('./components/ret_fun/Index.vue'));
+Vue.component('ret-fun-qualification-parameters', require('./components/ret_fun/QualificationParameters.vue'));
+Vue.component('ret-fun-average-contributable-wage', require('./components/ret_fun/qualifications_components/AverageContributableWage.vue'));
 Vue.component('ret-fun-form', require('./components/ret_fun/Form.vue'));
 Vue.component('ret-fun-create-info', require('./components/ret_fun/CreateInfo.vue'));
 Vue.component('ret-fun-step1-requirements', require('./components/ret_fun/Step1Requirements.vue'));
@@ -336,6 +338,8 @@ Vue.component('inbox-send-back-button-quota-aid', require('./components/inbox/Se
 Vue.component('ret-fun-report-form', require('./components/ret_fun/ReportForm.vue'));
 Vue.component('ret-fun-beneficiary-testimony-list', require('./components/ret_fun/BeneficiaryTestimonyList.vue'));
 Vue.component('ret-fun-beneficiary-testimony', require('./components/ret_fun/BeneficiaryTestimony.vue'));
+Vue.component('beneficiaries-qualification-amounts', require('./components/ret_fun/BeneficiariesQualificationAmounts.vue'));
+Vue.component('contributions-table', require('./components/ret_fun/qualifications_components/ContributionsTable.vue'));
 
 Vue.component('summary-select-contributions', require('./components/contribution/SummarySelectContributions.vue'));
 
@@ -453,12 +457,16 @@ Vue.component('eco-com-update-paid-bank', require('./components/eco_com/UpdatePa
 Vue.component('eco-com-automatic-qualification', require('./components/eco_com/AutomaticQualification.vue'));
 
 Vue.component('eco-com-estado-pagado', require('./components/eco_com/EstadoPagado.vue'));
+Vue.component('salary-display', require('./components/eco_com/Salary.vue'));
+Vue.component('salary-calculations', require('./components/eco_com/SalaryCalculations.vue'));
 
 Vue.component('edit-pension-modal', require('./components/eco_com/EditPensionModal.vue'));
 // utils
 Vue.component('sweet-alert-modal', require('./components/utils/SweetAlertModal.vue'));
 Vue.component('correlative', require('./components/utils/Correlative.vue'));
 Vue.component('certification-button', require('./components/utils/CertificationButton.vue'));
+Vue.component('requirement-select', require('./components/utils/RequirementSelect.vue'));
+Vue.component('requirement-edit-select', require('./components/utils/RequirementEditSelect.vue'));
 // Edit user
 Vue.component('edit-user', require('./components/user/EditUser.vue'));
 
